@@ -87,21 +87,25 @@ Topic: ${topic}
 Practice Area: ${practiceArea}
 
 Create a SHORT 30-40 second video script (approximately 75-100 words) that:
-1. Starts with ONE clear, simple hook question or statement
-2. Makes 2-3 key points about the topic in simple, everyday language
-3. Speaks directly to the viewer - use "you" and "your"
+1. Starts with ONE clear, simple hook question or statement about PEOPLE or FAMILY
+2. Makes 2-3 key points focusing on PEOPLE, FAMILY, and RELATIONSHIPS
+3. Speaks directly to the viewer - use "you" and "your family"
 4. Uses short, clear sentences that are easy to understand when spoken aloud
 5. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
 6. Is designed to be read aloud clearly by an AI voiceover
 
-IMPORTANT:
+CRITICAL - Script must be PEOPLE-FOCUSED to trigger good video footage:
 - Keep it CONCISE - 30-40 seconds only (75-100 words maximum)
-- Use simple, conversational language - speak like a real person, not a robot
-- Start sentences clearly - avoid mumbled beginnings
-- NO jargon, NO complex terms
-- Write ONLY the exact words to be spoken - no stage directions, no notes, no hashtags
+- Talk about: your family, your loved ones, your children, protecting people you care about, peace of mind, security, helping families, guidance, support
+- NEVER mention: documents, paperwork, forms, files, estate plans, wills, trusts, signing, legal documents (these words trigger boring paper/document footage)
+- Instead of "create a will" say "protect your family" or "make sure your loved ones are taken care of"
+- Instead of "estate planning" say "planning for your family's future"
+- Focus on EMOTIONAL benefits: peace of mind, security, protecting loved ones, family safety
+- Use simple, warm, conversational language - like talking to a neighbor over coffee
+- Start sentences clearly - no mumbling
+- NO legal jargon whatsoever
 
-Format: Plain spoken words only, like you're talking to a friend.`;
+Format: Plain spoken words only, natural and human, focusing on people and families.`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
