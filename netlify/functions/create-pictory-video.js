@@ -99,10 +99,10 @@ exports.handler = async (event) => {
       }
     };
 
-    console.log('Sending request to Pictory API v2...');
+    console.log('Sending request to Pictory API v2 render endpoint...');
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
-    const response = await axios.post(`${PICTORY_API_URL}/v2/video/storyboard`, requestBody, {
+    const response = await axios.post(`${PICTORY_API_URL}/v2/video/storyboard/render`, requestBody, {
       headers: {
         'Authorization': accessToken,
         'Content-Type': 'application/json'
