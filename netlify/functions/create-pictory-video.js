@@ -94,7 +94,7 @@ exports.handler = async (event) => {
         aiVoices: [
           {
             speaker: language === 'es' ? 'Maria' : 'Matthew',
-            speed: 0.95  // Slightly slower for better clarity at the beginning
+            speed: 95  // Slightly slower (95 out of 100) for better clarity
           }
         ]
       }
