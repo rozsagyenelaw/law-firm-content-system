@@ -142,6 +142,77 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
   });
   const [showVideoConfig, setShowVideoConfig] = useState(false);
 
+  // Resume polling if video is already processing when component mounts
+  useEffect(() => {
+    if (content.videoStatus === 'processing' && content.videoId) {
+      console.log('Resuming video polling for:', content.videoId);
+      startVideoPolling(content.videoId, content.language);
+    }
+  }, []); // Only run on mount
+
+  const startVideoPolling = (videoId, language) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const statusResponse = await apiClient.getPictoryVideoStatus(videoId);
+        const { status, videoUrl, progress } = statusResponse;
+
+        if (progress) {
+          onUpdateContent(content.id, {
+            videoProgress: progress
+          });
+        }
+
+        console.log('Video status update:', statusResponse);
+
+        if (status === 'completed') {
+          clearInterval(pollInterval);
+
+          // Save to Google Drive if connected
+          let driveUrl = null;
+          if (driveToken && videoUrl) {
+            try {
+              const folderType = language === 'es' ? 'videos-es' : 'videos-en';
+
+              const driveResponse = await apiClient.saveToGoogleDrive({
+                fileName: `${content.topic.substring(0, 50)}_video.mp4`,
+                content: videoUrl,
+                contentType: 'video/mp4',
+                folderType,
+                accessToken: driveToken
+              });
+              driveUrl = driveResponse.viewLink;
+            } catch (driveError) {
+              console.error('Failed to save to Drive:', driveError);
+            }
+          }
+
+          onUpdateContent(content.id, {
+            status: 'completed',
+            videoStatus: 'completed',
+            videoUrl: videoUrl,
+            videoDriveUrl: driveUrl,
+            videoProgress: 100
+          });
+        } else if (status === 'failed') {
+          clearInterval(pollInterval);
+          const errorMsg = statusResponse.errorMessage || statusResponse.error || 'Video generation failed';
+          console.error('Video failed:', errorMsg);
+          onUpdateContent(content.id, {
+            status: 'failed',
+            videoStatus: 'failed',
+            videoError: errorMsg
+          });
+          alert(`Video generation failed: ${errorMsg}`);
+        }
+      } catch (pollError) {
+        console.error('Error polling video status:', pollError);
+      }
+    }, 10000); // Poll every 10 seconds
+
+    // Set timeout to stop polling after 20 minutes
+    setTimeout(() => clearInterval(pollInterval), 1200000);
+  };
+
   const handleCreateVideo = async () => {
     setShowVideoConfig(false);
 
@@ -167,67 +238,14 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
 
       const videoId = response.videoId;
 
-      // Poll for video status
-      const pollInterval = setInterval(async () => {
-        try {
-          const statusResponse = await apiClient.getPictoryVideoStatus(videoId);
-          const { status, videoUrl, progress } = statusResponse;
+      // Store videoId so polling can resume after page refresh
+      onUpdateContent(content.id, {
+        videoId: videoId,
+        videoStatus: 'processing'
+      });
 
-          if (progress) {
-            onUpdateContent(content.id, {
-              videoProgress: progress
-            });
-          }
-
-          console.log('Video status update:', statusResponse);
-
-          if (status === 'completed') {
-            clearInterval(pollInterval);
-
-            // Save to Google Drive if connected
-            let driveUrl = null;
-            if (driveToken && videoUrl) {
-              try {
-                const folderType = language === 'es' ? 'videos-es' : 'videos-en';
-
-                const driveResponse = await apiClient.saveToGoogleDrive({
-                  fileName: `${content.topic.substring(0, 50)}_video.mp4`,
-                  content: videoUrl,
-                  contentType: 'video/mp4',
-                  folderType,
-                  accessToken: driveToken
-                });
-                driveUrl = driveResponse.viewLink;
-              } catch (driveError) {
-                console.error('Failed to save to Drive:', driveError);
-              }
-            }
-
-            onUpdateContent(content.id, {
-              status: 'completed',
-              videoStatus: 'completed',
-              videoUrl: videoUrl,
-              videoDriveUrl: driveUrl,
-              videoProgress: 100
-            });
-          } else if (status === 'failed') {
-            clearInterval(pollInterval);
-            const errorMsg = statusResponse.errorMessage || statusResponse.error || 'Video generation failed';
-            console.error('Video failed:', errorMsg);
-            onUpdateContent(content.id, {
-              status: 'failed',
-              videoStatus: 'failed',
-              videoError: errorMsg
-            });
-            alert(`Video generation failed: ${errorMsg}`);
-          }
-        } catch (pollError) {
-          console.error('Error polling video status:', pollError);
-        }
-      }, 10000); // Poll every 10 seconds
-
-      // Set timeout to stop polling after 20 minutes
-      setTimeout(() => clearInterval(pollInterval), 1200000);
+      // Start polling for video status
+      startVideoPolling(videoId, language);
 
     } catch (error) {
       console.error('Error creating video:', error);
