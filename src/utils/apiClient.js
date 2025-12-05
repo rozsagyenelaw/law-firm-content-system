@@ -74,6 +74,15 @@ class ApiClient {
     }
   }
 
+  async listHeyGenAvatars() {
+    try {
+      const response = await this.client.get('/list-heygen-avatars');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Pictory Video
   async createPictoryVideo(data) {
     try {
