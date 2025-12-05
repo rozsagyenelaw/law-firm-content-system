@@ -50,6 +50,8 @@ exports.handler = async (event) => {
 
     const data = response.data.data || response.data;
 
+    console.log('HeyGen video status response:', JSON.stringify(data, null, 2));
+
     return {
       statusCode: 200,
       headers,
@@ -57,7 +59,10 @@ exports.handler = async (event) => {
         status: data.status,
         videoUrl: data.video_url || data.video_url_https,
         thumbnail: data.thumbnail_url,
-        duration: data.duration
+        duration: data.duration,
+        error: data.error,
+        errorMessage: data.error_message || data.message,
+        progress: data.progress
       })
     };
 
