@@ -17,13 +17,20 @@ const VOICES = {
 };
 
 exports.handler = async (event) => {
+  console.log('HeyGen function called:', {
+    method: event.httpMethod,
+    path: event.path,
+    headers: event.headers
+  });
+
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Accept',
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
   if (event.httpMethod === 'OPTIONS') {
+    console.log('Handling OPTIONS preflight request');
     return { statusCode: 200, headers, body: '' };
   }
 

@@ -68,12 +68,20 @@ class ApiClient {
   async createHeyGenVideo(data) {
     try {
       console.log('Creating HeyGen video with data:', data);
-      console.log('Full URL:', API_BASE_URL + '/create-heygen-video');
-      const response = await this.client.post('/create-heygen-video', data);
+      // Add cache buster to avoid 404 cache
+      const cacheBuster = `?t=${Date.now()}`;
+      const url = '/create-heygen-video' + cacheBuster;
+      console.log('Full URL:', API_BASE_URL + url);
+      const response = await this.client.post(url, data);
       console.log('HeyGen response:', response.data);
       return response.data;
     } catch (error) {
       console.error('HeyGen API error:', error.response || error);
+      console.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
       throw this.handleError(error);
     }
   }
