@@ -177,6 +177,7 @@ function ContentCard({ content, onUpdateContent, driveTokens }) {
       console.log('Resuming video polling for:', content.videoId);
       startVideoPolling(content.videoId, content.language);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run on mount
 
   const startVideoPolling = (videoId, language) => {
