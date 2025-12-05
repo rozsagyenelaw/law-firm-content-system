@@ -3,11 +3,11 @@ const axios = require('axios');
 const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
 const HEYGEN_API_URL = 'https://api.heygen.com/v2/video/generate';
 
-// HeyGen public avatar IDs (these are publicly available avatars)
-// You can get your custom avatar IDs by visiting: https://app.heygen.com/avatars
+// HeyGen avatar IDs available in your account
+// Professional business avatars suitable for law firm
 const AVATARS = {
-  professional_male: 'Angela-inblackskirt-20220820',
-  professional_female: 'Anna_public_3_20240108'
+  professional_male: 'Adrian_public_2_20240312',    // Adrian in Blue Suit - professional male
+  professional_female: 'Adriana_Business_Front_public'  // Adriana Business Front - professional female
 };
 
 // Voice IDs for HeyGen
