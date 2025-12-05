@@ -102,6 +102,17 @@ class ApiClient {
     }
   }
 
+  async refreshGoogleToken(refreshToken) {
+    try {
+      const response = await this.client.post('/google-refresh-token', {
+        refresh_token: refreshToken
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Error handling
   handleError(error) {
     if (error.response) {

@@ -87,13 +87,14 @@ exports.handler = async (event) => {
       backgroundMusic: {
         enabled: true,
         autoMusic: true,
-        volume: 0.2
+        volume: 0.15  // Lower volume so voice is clearer
       },
       voiceOver: {
         enabled: true,
         aiVoices: [
           {
-            speaker: language === 'es' ? 'Maria' : 'Matthew'
+            speaker: language === 'es' ? 'Maria' : 'Matthew',
+            speed: 0.95  // Slightly slower for better clarity at the beginning
           }
         ]
       }

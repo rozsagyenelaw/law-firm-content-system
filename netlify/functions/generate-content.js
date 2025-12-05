@@ -86,21 +86,28 @@ ${langInstruction}
 Topic: ${topic}
 Practice Area: ${practiceArea}
 
-Create a 60-90 second video script that:
-1. Starts with a compelling hook (question or statement)
-2. Clearly explains the key points about the topic
-3. Is conversational and easy to follow when spoken
-4. Keeps the viewer engaged
-5. Ends with a clear call-to-action: "Contact ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for a consultation"
-6. Is designed to be read aloud by an AI avatar or voiceover
+Create a SHORT 30-40 second video script (approximately 75-100 words) that:
+1. Starts with ONE clear, simple hook question or statement
+2. Makes 2-3 key points about the topic in simple, everyday language
+3. Speaks directly to the viewer - use "you" and "your"
+4. Uses short, clear sentences that are easy to understand when spoken aloud
+5. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
+6. Is designed to be read aloud clearly by an AI voiceover
 
-Format: Write only the spoken words, no stage directions or technical notes. Make it flow naturally when spoken.`;
+IMPORTANT:
+- Keep it CONCISE - 30-40 seconds only (75-100 words maximum)
+- Use simple, conversational language - speak like a real person, not a robot
+- Start sentences clearly - avoid mumbled beginnings
+- NO jargon, NO complex terms
+- Write ONLY the exact words to be spoken - no stage directions, no notes, no hashtags
+
+Format: Plain spoken words only, like you're talking to a friend.`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
-    max_tokens: 500
+    max_tokens: 200  // Reduced for shorter scripts (30-40 seconds)
   });
 
   return completion.choices[0].message.content;

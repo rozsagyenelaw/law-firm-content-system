@@ -6,14 +6,14 @@ import apiClient from '../utils/apiClient';
 function Dashboard({ contentList, onNavigate, onUpdateContent }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [driveConnected, setDriveConnected] = useState(false);
-  const [driveToken, setDriveToken] = useState(null);
+  const [driveTokens, setDriveTokens] = useState(null);
 
   useEffect(() => {
     // Check if Google Drive is connected
-    const token = localStorage.getItem('googleDriveToken');
-    if (token) {
+    const tokens = localStorage.getItem('googleDriveTokens');
+    if (tokens) {
       setDriveConnected(true);
-      setDriveToken(token);
+      setDriveTokens(JSON.parse(tokens));
     }
 
     // Listen for OAuth callback
@@ -23,10 +23,10 @@ function Dashboard({ contentList, onNavigate, onUpdateContent }) {
 
   const handleOAuthMessage = (event) => {
     if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-      const { access_token } = event.data.tokens;
-      localStorage.setItem('googleDriveToken', access_token);
+      const tokens = event.data.tokens;
+      localStorage.setItem('googleDriveTokens', JSON.stringify(tokens));
       setDriveConnected(true);
-      setDriveToken(access_token);
+      setDriveTokens(tokens);
     }
   };
 
@@ -40,9 +40,9 @@ function Dashboard({ contentList, onNavigate, onUpdateContent }) {
   };
 
   const handleDisconnectDrive = () => {
-    localStorage.removeItem('googleDriveToken');
+    localStorage.removeItem('googleDriveTokens');
     setDriveConnected(false);
-    setDriveToken(null);
+    setDriveTokens(null);
   };
 
   const filteredContent = filterStatus === 'all'
@@ -126,7 +126,7 @@ function Dashboard({ contentList, onNavigate, onUpdateContent }) {
               key={content.id}
               content={content}
               onUpdateContent={onUpdateContent}
-              driveToken={driveToken}
+              driveTokens={driveTokens}
             />
           ))
         )}
@@ -135,12 +135,41 @@ function Dashboard({ contentList, onNavigate, onUpdateContent }) {
   );
 }
 
-function ContentCard({ content, onUpdateContent, driveToken }) {
+function ContentCard({ content, onUpdateContent, driveTokens }) {
   const [expanded, setExpanded] = useState(false);
   const [videoConfig, setVideoConfig] = useState({
     format: '9:16'
   });
   const [showVideoConfig, setShowVideoConfig] = useState(false);
+
+  // Helper function to get valid access token (refresh if expired)
+  const getValidAccessToken = async (tokens) => {
+    if (!tokens) return null;
+
+    // Check if token is expired or will expire in the next minute
+    const now = Date.now();
+    const expiryDate = tokens.expiry_date;
+
+    if (expiryDate && expiryDate > now + 60000) {
+      // Token is still valid
+      return tokens.access_token;
+    }
+
+    // Token expired or about to expire, refresh it
+    try {
+      const refreshedTokens = await apiClient.refreshGoogleToken(tokens.refresh_token);
+
+      // Update stored tokens
+      const newTokens = { ...tokens, ...refreshedTokens };
+      localStorage.setItem('googleDriveTokens', JSON.stringify(newTokens));
+
+      return refreshedTokens.access_token;
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      // If refresh fails, try using the old token anyway
+      return tokens.access_token;
+    }
+  };
 
   // Resume polling if video is already processing when component mounts
   useEffect(() => {
@@ -169,16 +198,19 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
 
           // Save to Google Drive if connected
           let driveUrl = null;
-          if (driveToken && videoUrl) {
+          if (driveTokens && videoUrl) {
             try {
               const folderType = language === 'es' ? 'videos-es' : 'videos-en';
+
+              // Get valid access token (refresh if needed)
+              const accessToken = await getValidAccessToken(driveTokens);
 
               const driveResponse = await apiClient.saveToGoogleDrive({
                 fileName: `${content.topic.substring(0, 50)}_video.mp4`,
                 content: videoUrl,
                 contentType: 'video/mp4',
                 folderType,
-                accessToken: driveToken
+                accessToken: accessToken
               });
               driveUrl = driveResponse.viewLink;
             } catch (driveError) {
