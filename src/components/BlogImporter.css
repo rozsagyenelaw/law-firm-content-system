@@ -1,0 +1,68 @@
+.blog-importer {
+  width: 100%;
+}
+
+.importer-header {
+  margin-bottom: 2rem;
+}
+
+.importer-header h2 {
+  font-size: 1.75rem;
+  margin-top: 1rem;
+  color: #2c3e50;
+}
+
+.importer-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.imported-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.article-title {
+  font-size: 1.25rem;
+  color: #1e3c72;
+  margin: 1rem 0;
+}
+
+.article-preview {
+  color: #6c757d;
+  line-height: 1.6;
+}
+
+.language-divider {
+  margin: 3rem 0 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.language-divider h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.importer-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .importer-actions {
+    flex-direction: column;
+  }
+
+  .importer-actions button {
+    width: 100%;
+  }
+}

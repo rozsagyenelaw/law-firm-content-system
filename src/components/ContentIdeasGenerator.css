@@ -1,0 +1,130 @@
+.content-ideas-generator {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ideas-form {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+}
+
+.ideas-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ideas-list {
+  margin-top: 2rem;
+}
+
+.ideas-list h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.ideas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.idea-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.idea-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.idea-card p {
+  color: #2c3e50;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.idea-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Saved Ideas */
+.saved-ideas {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #eee;
+}
+
+.saved-ideas h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.saved-ideas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.saved-idea-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.saved-idea-item span {
+  color: #2c3e50;
+  flex-grow: 1;
+}
+
+.saved-idea-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ideas-actions {
+    flex-direction: column;
+  }
+
+  .ideas-actions button {
+    width: 100%;
+  }
+
+  .ideas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .saved-idea-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .saved-idea-actions {
+    width: 100%;
+  }
+
+  .saved-idea-actions button {
+    flex: 1;
+  }
+}
