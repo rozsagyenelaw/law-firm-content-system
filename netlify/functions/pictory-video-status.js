@@ -66,18 +66,36 @@ exports.handler = async (event) => {
       timeout: 10000
     });
 
-    console.log('Pictory job status response:', response.data);
+    console.log('Pictory job status response:', JSON.stringify(response.data, null, 2));
 
     const data = response.data.data || response.data;
+
+    // Map Pictory status to our expected format
+    let status = data.status;
+    let videoUrl = null;
+    let progress = 0;
+
+    if (status === 'completed') {
+      videoUrl = data.videoUrl || data.video_url || data.url;
+      progress = 100;
+    } else if (status === 'in-progress' || status === 'processing') {
+      status = 'processing';
+      progress = data.progress || data.percentComplete || 50; // Default to 50% if not provided
+    } else if (status === 'failed' || status === 'error') {
+      status = 'failed';
+    }
+
+    console.log('Parsed status:', { status, progress, videoUrl });
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        status: data.status,
-        videoUrl: data.videoUrl || data.video_url,
+        status: status,
+        videoUrl: videoUrl,
         thumbnail: data.thumbnailUrl,
-        progress: data.progress
+        progress: progress,
+        error: data.error || data.errorMessage
       })
     };
 

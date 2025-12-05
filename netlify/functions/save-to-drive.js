@@ -1,10 +1,8 @@
 const { google } = require('googleapis');
 
 const FOLDER_STRUCTURE = {
-  'videos-heygen-en': 'Social Media Videos/HeyGen/English',
-  'videos-heygen-es': 'Social Media Videos/HeyGen/Spanish',
-  'videos-pictory-en': 'Social Media Videos/Pictory/English',
-  'videos-pictory-es': 'Social Media Videos/Pictory/Spanish',
+  'videos-en': 'Social Media Videos/English',
+  'videos-es': 'Social Media Videos/Spanish',
   'articles-en': 'Generated Content/Articles/English',
   'articles-es': 'Generated Content/Articles/Spanish',
   'scripts': 'Generated Content/Scripts',
@@ -179,12 +177,18 @@ exports.handler = async (event) => {
 
   } catch (error) {
     console.error('Error saving to Google Drive:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: 'Failed to save to Google Drive',
-        details: error.message
+        details: error.message,
+        hint: error.response?.data || 'Check if Google Drive access token is valid'
       })
     };
   }
