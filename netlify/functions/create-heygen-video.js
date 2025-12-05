@@ -66,6 +66,7 @@ exports.handler = async (event) => {
     const avatarId = AVATARS[avatarType] || AVATARS.professional_female;
 
     // HeyGen API request body
+    // Use 720p resolution for free/basic plans
     const requestBody = {
       video_inputs: [
         {
@@ -82,8 +83,8 @@ exports.handler = async (event) => {
         }
       ],
       dimension: {
-        width: format === '9:16' ? 1080 : 1080,
-        height: format === '9:16' ? 1920 : 1080
+        width: format === '9:16' ? 720 : 720,
+        height: format === '9:16' ? 1280 : 720
       },
       aspect_ratio: format,
       test: false
