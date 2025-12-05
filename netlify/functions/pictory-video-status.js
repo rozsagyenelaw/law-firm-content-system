@@ -76,8 +76,10 @@ exports.handler = async (event) => {
     let progress = 0;
 
     if (status === 'completed') {
-      videoUrl = data.videoUrl || data.video_url || data.url;
+      // Pictory returns videoURL (camelCase with capital URL)
+      videoUrl = data.videoURL || data.videoUrl || data.video_url || data.url;
       progress = 100;
+      console.log('Video completed! URL:', videoUrl);
     } else if (status === 'in-progress' || status === 'processing') {
       status = 'processing';
       progress = data.progress || data.percentComplete || 50; // Default to 50% if not provided
@@ -93,7 +95,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         status: status,
         videoUrl: videoUrl,
-        thumbnail: data.thumbnailUrl,
+        thumbnail: data.thumbnail || data.thumbnailUrl,
+        shareUrl: data.shareVideoURL,
         progress: progress,
         error: data.error || data.errorMessage
       })
