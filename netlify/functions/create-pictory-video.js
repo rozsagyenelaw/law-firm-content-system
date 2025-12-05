@@ -112,12 +112,14 @@ exports.handler = async (event) => {
 
     console.log('Pictory API full response:', JSON.stringify(response.data, null, 2));
 
-    const jobId = response.data.job_id || response.data.data?.job_id || response.data.jobId;
+    const jobId = response.data.data?.jobId || response.data.jobId || response.data.data?.job_id || response.data.job_id;
 
     if (!jobId) {
       console.error('No job ID in response. Full response:', JSON.stringify(response.data, null, 2));
       throw new Error(`No job ID returned from Pictory API. Response: ${JSON.stringify(response.data)}`);
     }
+
+    console.log('Video job created successfully. Job ID:', jobId);
 
     return {
       statusCode: 200,
