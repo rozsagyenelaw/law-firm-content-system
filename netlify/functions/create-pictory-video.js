@@ -72,6 +72,8 @@ exports.handler = async (event) => {
     const accessToken = await getAccessToken();
 
     // Pictory API v2 - Create video storyboard from text
+    const phoneNumber = process.env.FIRM_PHONE || '(818) 291-6217';
+
     const requestBody = {
       videoName: videoName || `Law_Firm_Video_${Date.now()}`,
       videoWidth: format === '9:16' ? 1080 : 1920,
@@ -82,11 +84,12 @@ exports.handler = async (event) => {
           story: script,
           createSceneOnNewLine: true,
           createSceneOnEndOfSentence: true,
-          // Video style preferences - only real people, no cartoons
+          // Video style preferences - only real people, no cartoons, professional content
           videoStyle: 'photographic',
           visualStyle: 'realistic',
-          // Add uniqueness to prevent repeating footage
-          randomizeFootage: true
+          contentFilter: 'family-friendly',  // Filter out adult/inappropriate content
+          keywords: 'family, professional, business, consultation, office, home, outdoors',
+          excludeKeywords: 'intimate, bedroom, sleeping, night, sensual, revealing'
         }
       ],
       backgroundMusic: {
@@ -103,19 +106,15 @@ exports.handler = async (event) => {
           }
         ]
       },
-      // Add text overlay with call-to-action
-      branding: {
-        intro: {
-          enabled: false
-        },
-        outro: {
-          enabled: true,
-          text: `Call ${process.env.FIRM_PHONE || '(818) 291-6217'}`,
-          duration: 3,
-          textColor: '#FFFFFF',
-          backgroundColor: '#1e3c72',
-          fontSize: 24
-        }
+      // Add persistent text overlay throughout video
+      textOverlay: {
+        enabled: true,
+        text: `📞 ${phoneNumber}`,
+        position: 'bottom',
+        fontSize: 20,
+        fontColor: '#FFFFFF',
+        backgroundColor: 'rgba(30, 60, 114, 0.8)',
+        duration: 'full'  // Show throughout entire video
       }
     };
 

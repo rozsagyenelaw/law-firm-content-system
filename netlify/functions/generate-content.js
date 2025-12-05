@@ -105,8 +105,10 @@ CRITICAL - Script must be PEOPLE-FOCUSED to trigger good video footage:
 - Start sentences clearly - no mumbling
 - NO legal jargon whatsoever
 - VARY YOUR DESCRIPTIONS: Use different scenarios each time (elderly couple, young parents, multi-generational family, single parent, etc.) to trigger diverse footage
+- PROFESSIONAL CONTEXT ONLY: Describe families in professional, wholesome settings - having conversations at kitchen table, sitting in living room, walking in park, meeting with advisors, spending time together outdoors
+- AVOID triggering bedroom/intimate scenes: Don't use words like "sleep", "bed", "night", "rest", "bedroom" - these trigger inappropriate footage
 
-Format: Plain spoken words only, natural and human, focusing on people and families. Be creative and vary the imagery!`;
+Format: Plain spoken words only, natural and human, focusing on people and families in PROFESSIONAL, DAYTIME, PUBLIC settings. Be creative and vary the imagery!`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
