@@ -81,7 +81,10 @@ exports.handler = async (event) => {
         {
           story: script,
           createSceneOnNewLine: true,
-          createSceneOnEndOfSentence: true
+          createSceneOnEndOfSentence: true,
+          // Video style preferences - only real people, no cartoons
+          videoStyle: 'photographic',
+          visualStyle: 'realistic'
         }
       ],
       backgroundMusic: {

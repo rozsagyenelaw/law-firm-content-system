@@ -14,16 +14,46 @@ function ContentGenerator({ onBack, onContentCreated }) {
   const [generatedContent, setGeneratedContent] = useState(null);
   const [saving, setSaving] = useState(false);
   const [driveConnected, setDriveConnected] = useState(false);
-  const [driveToken, setDriveToken] = useState(null);
+  const [driveTokens, setDriveTokens] = useState(null);
 
   // Check if Google Drive is connected
   React.useEffect(() => {
-    const token = localStorage.getItem('googleDriveToken');
-    if (token) {
+    const tokens = localStorage.getItem('googleDriveTokens');
+    if (tokens) {
       setDriveConnected(true);
-      setDriveToken(token);
+      setDriveTokens(JSON.parse(tokens));
     }
   }, []);
+
+  // Helper function to get valid access token (refresh if expired)
+  const getValidAccessToken = async (tokens) => {
+    if (!tokens) return null;
+
+    // Check if token is expired or will expire in the next minute
+    const now = Date.now();
+    const expiryDate = tokens.expiry_date;
+
+    if (expiryDate && expiryDate > now + 60000) {
+      // Token is still valid
+      return tokens.access_token;
+    }
+
+    // Token expired or about to expire, refresh it
+    try {
+      const refreshedTokens = await apiClient.refreshGoogleToken(tokens.refresh_token);
+
+      // Update stored tokens
+      const newTokens = { ...tokens, ...refreshedTokens };
+      localStorage.setItem('googleDriveTokens', JSON.stringify(newTokens));
+      setDriveTokens(newTokens);
+
+      return refreshedTokens.access_token;
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      // If refresh fails, try using the old token anyway
+      return tokens.access_token;
+    }
+  };
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -71,36 +101,41 @@ function ContentGenerator({ onBack, onContentCreated }) {
       let contentWithDriveUrls = { ...generatedContent };
 
       // Save to Google Drive if connected
-      if (driveConnected && driveToken) {
-        // Save English article
-        if (generatedContent.article) {
-          try {
-            const englishResponse = await apiClient.saveToGoogleDrive({
-              fileName: `${topic.substring(0, 50)}_article.txt`,
-              content: generatedContent.article,
-              contentType: 'text/plain',
-              folderType: 'articles-en',
-              accessToken: driveToken
-            });
-            contentWithDriveUrls.articleDriveUrl = englishResponse.viewLink;
-          } catch (driveError) {
-            console.error('Failed to save English article to Drive:', driveError);
-          }
-        }
+      if (driveConnected && driveTokens) {
+        // Get valid access token (refresh if needed)
+        const accessToken = await getValidAccessToken(driveTokens);
 
-        // Save Spanish article if it exists
-        if (generatedContent.articleEs) {
-          try {
-            const spanishResponse = await apiClient.saveToGoogleDrive({
-              fileName: `${topic.substring(0, 50)}_articulo.txt`,
-              content: generatedContent.articleEs,
-              contentType: 'text/plain',
-              folderType: 'articles-es',
-              accessToken: driveToken
-            });
-            contentWithDriveUrls.articleEsDriveUrl = spanishResponse.viewLink;
-          } catch (driveError) {
-            console.error('Failed to save Spanish article to Drive:', driveError);
+        if (accessToken) {
+          // Save English article
+          if (generatedContent.article) {
+            try {
+              const englishResponse = await apiClient.saveToGoogleDrive({
+                fileName: `${topic.substring(0, 50)}_article.txt`,
+                content: generatedContent.article,
+                contentType: 'text/plain',
+                folderType: 'articles-en',
+                accessToken: accessToken
+              });
+              contentWithDriveUrls.articleDriveUrl = englishResponse.viewLink;
+            } catch (driveError) {
+              console.error('Failed to save English article to Drive:', driveError);
+            }
+          }
+
+          // Save Spanish article if it exists
+          if (generatedContent.articleEs) {
+            try {
+              const spanishResponse = await apiClient.saveToGoogleDrive({
+                fileName: `${topic.substring(0, 50)}_articulo.txt`,
+                content: generatedContent.articleEs,
+                contentType: 'text/plain',
+                folderType: 'articles-es',
+                accessToken: accessToken
+              });
+              contentWithDriveUrls.articleEsDriveUrl = spanishResponse.viewLink;
+            } catch (driveError) {
+              console.error('Failed to save Spanish article to Drive:', driveError);
+            }
           }
         }
       }
