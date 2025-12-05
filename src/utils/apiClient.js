@@ -64,64 +64,6 @@ class ApiClient {
     }
   }
 
-  // HeyGen Video
-  async createHeyGenVideo(data) {
-    console.log('🎬 [START] createHeyGenVideo called');
-    console.log('📦 [DATA]', data);
-
-    try {
-      // Try direct fetch instead of axios to bypass any axios issues
-      const fullUrl = window.location.origin + '/.netlify/functions/create-heygen-video';
-      console.log('🌐 [URL]', fullUrl);
-
-      console.log('📤 [SENDING] POST request...');
-      const fetchResponse = await fetch(fullUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-
-      console.log('📥 [RECEIVED] Status:', fetchResponse.status, fetchResponse.statusText);
-
-      if (!fetchResponse.ok) {
-        const errorText = await fetchResponse.text();
-        console.error('❌ [ERROR RESPONSE]', errorText);
-        throw new Error(`HTTP ${fetchResponse.status}: ${errorText}`);
-      }
-
-      const responseData = await fetchResponse.json();
-      console.log('✅ [SUCCESS]', responseData);
-      return responseData;
-    } catch (error) {
-      console.error('💥 [EXCEPTION]', error);
-      console.error('💥 [ERROR NAME]', error.name);
-      console.error('💥 [ERROR MESSAGE]', error.message);
-      console.error('💥 [ERROR STACK]', error.stack);
-      throw new Error('Failed to create HeyGen video: ' + error.message);
-    }
-  }
-
-  async getHeyGenVideoStatus(videoId) {
-    try {
-      const response = await this.client.get(`/heygen-video-status?videoId=${videoId}`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  async listHeyGenAvatars() {
-    try {
-      const response = await this.client.get('/list-heygen-avatars');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
   // Pictory Video
   async createPictoryVideo(data) {
     try {

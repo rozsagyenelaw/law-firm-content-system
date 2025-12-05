@@ -138,18 +138,17 @@ function Dashboard({ contentList, onNavigate, onUpdateContent }) {
 function ContentCard({ content, onUpdateContent, driveToken }) {
   const [expanded, setExpanded] = useState(false);
   const [videoConfig, setVideoConfig] = useState({
-    format: '9:16',
-    avatar: 'professional_male'
+    format: '9:16'
   });
-  const [showVideoConfig, setShowVideoConfig] = useState(null);
+  const [showVideoConfig, setShowVideoConfig] = useState(false);
 
-  const handleCreateVideo = async (platform) => {
-    setShowVideoConfig(null);
+  const handleCreateVideo = async () => {
+    setShowVideoConfig(false);
 
     onUpdateContent(content.id, {
       status: 'processing_video',
-      [`${platform}VideoStatus`]: 'processing',
-      [`${platform}VideoProgress`]: 0
+      videoStatus: 'processing',
+      videoProgress: 0
     });
 
     try {
@@ -159,40 +158,24 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
 
       const language = content.language === 'spanish' || content.language === 'es' ? 'es' : 'en';
 
-      let response;
-      if (platform === 'heygen') {
-        response = await apiClient.createHeyGenVideo({
-          script,
-          language,
-          format: videoConfig.format,
-          avatarType: videoConfig.avatar
-        });
-      } else {
-        response = await apiClient.createPictoryVideo({
-          script,
-          language,
-          format: videoConfig.format,
-          videoName: `${content.topic.substring(0, 50)}_${Date.now()}`
-        });
-      }
+      const response = await apiClient.createPictoryVideo({
+        script,
+        language,
+        format: videoConfig.format,
+        videoName: `${content.topic.substring(0, 50)}_${Date.now()}`
+      });
 
       const videoId = response.videoId;
 
       // Poll for video status
       const pollInterval = setInterval(async () => {
         try {
-          let statusResponse;
-          if (platform === 'heygen') {
-            statusResponse = await apiClient.getHeyGenVideoStatus(videoId);
-          } else {
-            statusResponse = await apiClient.getPictoryVideoStatus(videoId);
-          }
-
+          const statusResponse = await apiClient.getPictoryVideoStatus(videoId);
           const { status, videoUrl, progress } = statusResponse;
 
           if (progress) {
             onUpdateContent(content.id, {
-              [`${platform}VideoProgress`]: progress
+              videoProgress: progress
             });
           }
 
@@ -205,12 +188,10 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
             let driveUrl = null;
             if (driveToken && videoUrl) {
               try {
-                const folderType = language === 'es'
-                  ? `videos-${platform}-es`
-                  : `videos-${platform}-en`;
+                const folderType = language === 'es' ? 'videos-es' : 'videos-en';
 
                 const driveResponse = await apiClient.saveToGoogleDrive({
-                  fileName: `${content.topic.substring(0, 50)}_${platform}.mp4`,
+                  fileName: `${content.topic.substring(0, 50)}_video.mp4`,
                   content: videoUrl,
                   contentType: 'video/mp4',
                   folderType,
@@ -224,10 +205,10 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
 
             onUpdateContent(content.id, {
               status: 'completed',
-              [`${platform}VideoStatus`]: 'completed',
-              [`${platform}VideoUrl`]: videoUrl,
-              [`${platform}VideoDriveUrl`]: driveUrl,
-              [`${platform}VideoProgress`]: 100
+              videoStatus: 'completed',
+              videoUrl: videoUrl,
+              videoDriveUrl: driveUrl,
+              videoProgress: 100
             });
           } else if (status === 'failed') {
             clearInterval(pollInterval);
@@ -235,8 +216,8 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
             console.error('Video failed:', errorMsg);
             onUpdateContent(content.id, {
               status: 'failed',
-              [`${platform}VideoStatus`]: 'failed',
-              [`${platform}VideoError`]: errorMsg
+              videoStatus: 'failed',
+              videoError: errorMsg
             });
             alert(`Video generation failed: ${errorMsg}`);
           }
@@ -249,11 +230,11 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
       setTimeout(() => clearInterval(pollInterval), 1200000);
 
     } catch (error) {
-      console.error(`Error creating ${platform} video:`, error);
+      console.error('Error creating video:', error);
       onUpdateContent(content.id, {
         status: 'failed',
-        [`${platform}VideoStatus`]: 'failed',
-        [`${platform}VideoError`]: error.message
+        videoStatus: 'failed',
+        videoError: error.message
       });
     }
   };
@@ -325,37 +306,24 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
           </div>
         )}
 
-        {/* Video Progress Bars */}
-        {content.heygenVideoStatus === 'processing' && (
+        {/* Video Progress Bar */}
+        {content.videoStatus === 'processing' && (
           <div className="video-progress">
-            <label>HeyGen Video Progress:</label>
+            <label>Video Progress:</label>
             <div className="progress-bar">
               <div
                 className="progress-fill"
-                style={{ width: `${content.heygenVideoProgress || 0}%` }}
+                style={{ width: `${content.videoProgress || 0}%` }}
               />
             </div>
-            <span>{content.heygenVideoProgress || 0}%</span>
-          </div>
-        )}
-
-        {content.pictoryVideoStatus === 'processing' && (
-          <div className="video-progress">
-            <label>Pictory Video Progress:</label>
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${content.pictoryVideoProgress || 0}%` }}
-              />
-            </div>
-            <span>{content.pictoryVideoProgress || 0}%</span>
+            <span>{content.videoProgress || 0}%</span>
           </div>
         )}
 
         {/* Video Configuration */}
         {showVideoConfig && (
           <div className="video-config">
-            <h4>Video Settings for {showVideoConfig === 'heygen' ? 'HeyGen' : 'Pictory'}</h4>
+            <h4>Video Settings</h4>
 
             <div className="config-group">
               <label>Video Format:</label>
@@ -381,29 +349,16 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
               </div>
             </div>
 
-            {showVideoConfig === 'heygen' && (
-              <div className="config-group">
-                <label>Avatar:</label>
-                <select
-                  value={videoConfig.avatar}
-                  onChange={(e) => setVideoConfig({...videoConfig, avatar: e.target.value})}
-                >
-                  <option value="professional_male">Professional Male</option>
-                  <option value="professional_female">Professional Female</option>
-                </select>
-              </div>
-            )}
-
             <div className="config-actions">
               <button
                 className="btn btn-outline btn-small"
-                onClick={() => setShowVideoConfig(null)}
+                onClick={() => setShowVideoConfig(false)}
               >
                 Cancel
               </button>
               <button
                 className="btn btn-primary btn-small"
-                onClick={() => handleCreateVideo(showVideoConfig)}
+                onClick={handleCreateVideo}
               >
                 Create Video
               </button>
@@ -420,65 +375,30 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
           </button>
 
           {content.status === 'ready' && !showVideoConfig && (
-            <>
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowVideoConfig('heygen')}
-                disabled={content.heygenVideoStatus === 'processing'}
-              >
-                {content.heygenVideoStatus === 'processing'
-                  ? 'Creating HeyGen Video...'
-                  : 'Create HeyGen Video'}
-              </button>
-
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowVideoConfig('pictory')}
-                disabled={content.pictoryVideoStatus === 'processing'}
-              >
-                {content.pictoryVideoStatus === 'processing'
-                  ? 'Creating Pictory Video...'
-                  : 'Create Pictory Video'}
-              </button>
-            </>
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowVideoConfig(true)}
+              disabled={content.videoStatus === 'processing'}
+            >
+              {content.videoStatus === 'processing'
+                ? 'Creating Video...'
+                : 'Create Video'}
+            </button>
           )}
 
-          {content.heygenVideoUrl && (
+          {content.videoUrl && (
             <>
               <a
-                href={content.heygenVideoUrl}
+                href={content.videoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-success"
               >
-                View HeyGen Video
+                View Video
               </a>
-              {content.heygenVideoDriveUrl && (
+              {content.videoDriveUrl && (
                 <a
-                  href={content.heygenVideoDriveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline btn-small"
-                >
-                  Open in Drive
-                </a>
-              )}
-            </>
-          )}
-
-          {content.pictoryVideoUrl && (
-            <>
-              <a
-                href={content.pictoryVideoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-success"
-              >
-                View Pictory Video
-              </a>
-              {content.pictoryVideoDriveUrl && (
-                <a
-                  href={content.pictoryVideoDriveUrl}
+                  href={content.videoDriveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline btn-small"
