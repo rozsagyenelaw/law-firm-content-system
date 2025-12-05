@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Dashboard from './components/Dashboard';
 import ContentGenerator from './components/ContentGenerator';
@@ -8,7 +8,16 @@ import ImageGenerator from './components/ImageGenerator';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [contentList, setContentList] = useState([]);
+  const [contentList, setContentList] = useState(() => {
+    // Load from localStorage on init
+    const saved = localStorage.getItem('lawfirm_content');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Save to localStorage whenever contentList changes
+  useEffect(() => {
+    localStorage.setItem('lawfirm_content', JSON.stringify(contentList));
+  }, [contentList]);
 
   const addContent = (content) => {
     setContentList([content, ...contentList]);
