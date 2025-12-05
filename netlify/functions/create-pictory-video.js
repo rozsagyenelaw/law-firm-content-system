@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const PICTORY_API_KEY = process.env.PICTORY_API_KEY;
-const PICTORY_API_URL = 'https://api.pictory.ai/pictoryapis/v1';
+const PICTORY_API_URL = 'https://api.pictory.ai/pictoryapis';
 
 exports.handler = async (event) => {
   const headers = {
@@ -25,6 +25,14 @@ exports.handler = async (event) => {
   try {
     const { script, language, format, videoName } = JSON.parse(event.body);
 
+    console.log('Pictory video creation request:', {
+      scriptLength: script?.length,
+      language,
+      format,
+      videoName,
+      hasApiKey: !!PICTORY_API_KEY
+    });
+
     if (!script) {
       return {
         statusCode: 400,
@@ -41,55 +49,52 @@ exports.handler = async (event) => {
       };
     }
 
-    // Pictory API - Create video from script
+    // Pictory API v2 - Create video storyboard from text
+    // Using correct format based on API documentation
     const requestBody = {
       videoName: videoName || `Law_Firm_Video_${Date.now()}`,
+      videoWidth: format === '9:16' ? 1080 : 1920,
+      videoHeight: format === '9:16' ? 1920 : 1080,
       language: language === 'es' ? 'es' : 'en',
       scenes: [
         {
-          text: script,
-          voiceOver: true,
-          splitTextOnNewLine: true,
-          splitTextOnPeriod: true
+          story: script,
+          createSceneOnNewLine: true,
+          createSceneOnEndOfSentence: true
         }
       ],
-      brandLogo: {
-        url: '', // Add logo URL if available
-        position: 'bottom-right'
+      backgroundMusic: {
+        enabled: true,
+        autoMusic: true,
+        volume: 0.2
       },
-      videoDescription: 'Legal content video',
-      videoSettings: {
-        width: format === '9:16' ? 1080 : 1080,
-        height: format === '9:16' ? 1920 : 1080,
-        aspectRatio: format === '9:16' ? '9:16' : '1:1',
-        enableCaptions: true,
-        enableAudio: true
-      },
-      audio: {
-        aiVoiceOver: {
-          speaker: language === 'es' ? 'es-ES-Standard-A' : 'en-US-Standard-C',
-          speed: 1.0,
-          amplifyLevel: 0
-        },
-        backgroundMusic: {
-          enabled: true,
-          volume: 0.3
-        }
+      voiceOver: {
+        enabled: true,
+        aiVoices: [
+          {
+            speaker: language === 'es' ? 'Maria' : 'Matthew'
+          }
+        ]
       }
     };
 
-    const response = await axios.post(`${PICTORY_API_URL}/video/storyboard`, requestBody, {
+    console.log('Sending request to Pictory API v2...');
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+    const response = await axios.post(`${PICTORY_API_URL}/v2/video/storyboard`, requestBody, {
       headers: {
-        'Authorization': `Bearer ${PICTORY_API_KEY}`,
-        'Content-Type': 'application/json',
-        'X-Pictory-User-Id': process.env.PICTORY_USER_ID || 'default'
+        'Authorization': PICTORY_API_KEY,
+        'Content-Type': 'application/json'
       },
       timeout: 30000
     });
 
-    const jobId = response.data.data?.jobId || response.data.jobId;
+    console.log('Pictory API response:', response.data);
+
+    const jobId = response.data.job_id || response.data.data?.job_id || response.data.jobId;
 
     if (!jobId) {
+      console.error('No job ID in response:', response.data);
       throw new Error('No job ID returned from Pictory API');
     }
 
@@ -105,12 +110,22 @@ exports.handler = async (event) => {
 
   } catch (error) {
     console.error('Error creating Pictory video:', error);
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      headers: error.response?.headers
+    });
 
     let errorMessage = 'Failed to create Pictory video';
     let errorDetails = error.message;
 
     if (error.response) {
-      errorDetails = error.response.data?.message || error.response.statusText;
+      console.error('Pictory API Error Response:', {
+        status: error.response.status,
+        data: error.response.data
+      });
+      errorDetails = JSON.stringify(error.response.data) || error.response.statusText;
     }
 
     return {
@@ -118,7 +133,8 @@ exports.handler = async (event) => {
       headers,
       body: JSON.stringify({
         error: errorMessage,
-        details: errorDetails
+        details: errorDetails,
+        hint: 'Check if your Pictory API key is valid and has the correct permissions'
       })
     };
   }
