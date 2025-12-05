@@ -196,6 +196,8 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
             });
           }
 
+          console.log('Video status update:', statusResponse);
+
           if (status === 'completed') {
             clearInterval(pollInterval);
 
@@ -229,11 +231,14 @@ function ContentCard({ content, onUpdateContent, driveToken }) {
             });
           } else if (status === 'failed') {
             clearInterval(pollInterval);
+            const errorMsg = statusResponse.errorMessage || statusResponse.error || 'Video generation failed';
+            console.error('Video failed:', errorMsg);
             onUpdateContent(content.id, {
               status: 'failed',
               [`${platform}VideoStatus`]: 'failed',
-              [`${platform}VideoError`]: 'Video generation failed'
+              [`${platform}VideoError`]: errorMsg
             });
+            alert(`Video generation failed: ${errorMsg}`);
           }
         } catch (pollError) {
           console.error('Error polling video status:', pollError);
