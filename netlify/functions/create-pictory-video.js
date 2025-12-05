@@ -1,7 +1,25 @@
 const axios = require('axios');
 
-const PICTORY_API_KEY = process.env.PICTORY_API_KEY;
+const PICTORY_CLIENT_ID = process.env.PICTORY_CLIENT_ID;
+const PICTORY_CLIENT_SECRET = process.env.PICTORY_CLIENT_SECRET;
 const PICTORY_API_URL = 'https://api.pictory.ai/pictoryapis';
+
+// Function to get OAuth access token
+async function getAccessToken() {
+  console.log('Getting Pictory OAuth token...');
+
+  const response = await axios.post(`${PICTORY_API_URL}/v1/oauth2/token`, {
+    client_id: PICTORY_CLIENT_ID,
+    client_secret: PICTORY_CLIENT_SECRET
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  console.log('OAuth token received');
+  return response.data.access_token;
+}
 
 exports.handler = async (event) => {
   const headers = {
@@ -30,7 +48,8 @@ exports.handler = async (event) => {
       language,
       format,
       videoName,
-      hasApiKey: !!PICTORY_API_KEY
+      hasClientId: !!PICTORY_CLIENT_ID,
+      hasClientSecret: !!PICTORY_CLIENT_SECRET
     });
 
     if (!script) {
@@ -41,16 +60,18 @@ exports.handler = async (event) => {
       };
     }
 
-    if (!PICTORY_API_KEY) {
+    if (!PICTORY_CLIENT_ID || !PICTORY_CLIENT_SECRET) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Pictory API key not configured' })
+        body: JSON.stringify({ error: 'Pictory API credentials not configured' })
       };
     }
 
+    // Get OAuth access token
+    const accessToken = await getAccessToken();
+
     // Pictory API v2 - Create video storyboard from text
-    // Using correct format based on API documentation
     const requestBody = {
       videoName: videoName || `Law_Firm_Video_${Date.now()}`,
       videoWidth: format === '9:16' ? 1080 : 1920,
@@ -83,19 +104,19 @@ exports.handler = async (event) => {
 
     const response = await axios.post(`${PICTORY_API_URL}/v2/video/storyboard`, requestBody, {
       headers: {
-        'Authorization': PICTORY_API_KEY,
+        'Authorization': accessToken,
         'Content-Type': 'application/json'
       },
       timeout: 30000
     });
 
-    console.log('Pictory API response:', response.data);
+    console.log('Pictory API full response:', JSON.stringify(response.data, null, 2));
 
     const jobId = response.data.job_id || response.data.data?.job_id || response.data.jobId;
 
     if (!jobId) {
-      console.error('No job ID in response:', response.data);
-      throw new Error('No job ID returned from Pictory API');
+      console.error('No job ID in response. Full response:', JSON.stringify(response.data, null, 2));
+      throw new Error(`No job ID returned from Pictory API. Response: ${JSON.stringify(response.data)}`);
     }
 
     return {
@@ -134,7 +155,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         error: errorMessage,
         details: errorDetails,
-        hint: 'Check if your Pictory API key is valid and has the correct permissions'
+        hint: 'Check if your Pictory API credentials are valid and have the correct permissions'
       })
     };
   }

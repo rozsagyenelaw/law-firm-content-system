@@ -1,7 +1,22 @@
 const axios = require('axios');
 
-const PICTORY_API_KEY = process.env.PICTORY_API_KEY;
-const PICTORY_API_URL = 'https://api.pictory.ai/pictoryapis/v1';
+const PICTORY_CLIENT_ID = process.env.PICTORY_CLIENT_ID;
+const PICTORY_CLIENT_SECRET = process.env.PICTORY_CLIENT_SECRET;
+const PICTORY_API_URL = 'https://api.pictory.ai/pictoryapis';
+
+// Function to get OAuth access token
+async function getAccessToken() {
+  const response = await axios.post(`${PICTORY_API_URL}/v1/oauth2/token`, {
+    client_id: PICTORY_CLIENT_ID,
+    client_secret: PICTORY_CLIENT_SECRET
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  return response.data.access_token;
+}
 
 exports.handler = async (event) => {
   const headers = {
@@ -33,21 +48,25 @@ exports.handler = async (event) => {
       };
     }
 
-    if (!PICTORY_API_KEY) {
+    if (!PICTORY_CLIENT_ID || !PICTORY_CLIENT_SECRET) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Pictory API key not configured' })
+        body: JSON.stringify({ error: 'Pictory API credentials not configured' })
       };
     }
 
-    const response = await axios.get(`${PICTORY_API_URL}/jobs/${videoId}`, {
+    // Get OAuth access token
+    const accessToken = await getAccessToken();
+
+    const response = await axios.get(`${PICTORY_API_URL}/v1/jobs/${videoId}`, {
       headers: {
-        'Authorization': `Bearer ${PICTORY_API_KEY}`,
-        'X-Pictory-User-Id': process.env.PICTORY_USER_ID || 'default'
+        'Authorization': accessToken
       },
       timeout: 10000
     });
+
+    console.log('Pictory job status response:', response.data);
 
     const data = response.data.data || response.data;
 
@@ -64,12 +83,14 @@ exports.handler = async (event) => {
 
   } catch (error) {
     console.error('Error checking Pictory video status:', error);
+    console.error('Error response:', error.response?.data);
+
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: 'Failed to check video status',
-        details: error.message
+        details: error.response?.data || error.message
       })
     };
   }
