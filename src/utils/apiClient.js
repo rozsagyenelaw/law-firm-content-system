@@ -1,11 +1,20 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/.netlify/functions'
-  : 'http://localhost:8889/.netlify/functions';
+// Determine API base URL based on current location
+const getApiBaseUrl = () => {
+  // If running on localhost, use local dev server
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:8889/.netlify/functions';
+  }
+  // For production (Netlify), use relative path
+  return '/.netlify/functions';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiClient {
   constructor() {
+    console.log('ApiClient initialized with baseURL:', API_BASE_URL);
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -58,9 +67,13 @@ class ApiClient {
   // HeyGen Video
   async createHeyGenVideo(data) {
     try {
+      console.log('Creating HeyGen video with data:', data);
+      console.log('Full URL:', API_BASE_URL + '/create-heygen-video');
       const response = await this.client.post('/create-heygen-video', data);
+      console.log('HeyGen response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('HeyGen API error:', error.response || error);
       throw this.handleError(error);
     }
   }
