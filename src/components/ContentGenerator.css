@@ -101,6 +101,14 @@
   border-top: 2px solid #eee;
 }
 
+.drive-info {
+  text-align: center;
+  color: #28a745;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .generator-actions {

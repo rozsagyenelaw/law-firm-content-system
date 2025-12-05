@@ -12,6 +12,18 @@ function ContentGenerator({ onBack, onContentCreated }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [generatedContent, setGeneratedContent] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [driveConnected, setDriveConnected] = useState(false);
+  const [driveToken, setDriveToken] = useState(null);
+
+  // Check if Google Drive is connected
+  React.useEffect(() => {
+    const token = localStorage.getItem('googleDriveToken');
+    if (token) {
+      setDriveConnected(true);
+      setDriveToken(token);
+    }
+  }, []);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -49,10 +61,55 @@ function ContentGenerator({ onBack, onContentCreated }) {
     }
   };
 
-  const handleSave = () => {
-    if (generatedContent) {
-      onContentCreated(generatedContent);
+  const handleSave = async () => {
+    if (!generatedContent) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      let contentWithDriveUrls = { ...generatedContent };
+
+      // Save to Google Drive if connected
+      if (driveConnected && driveToken) {
+        // Save English article
+        if (generatedContent.article) {
+          try {
+            const englishResponse = await apiClient.saveToGoogleDrive({
+              fileName: `${topic.substring(0, 50)}_article.txt`,
+              content: generatedContent.article,
+              contentType: 'text/plain',
+              folderType: 'articles-en',
+              accessToken: driveToken
+            });
+            contentWithDriveUrls.articleDriveUrl = englishResponse.viewLink;
+          } catch (driveError) {
+            console.error('Failed to save English article to Drive:', driveError);
+          }
+        }
+
+        // Save Spanish article if it exists
+        if (generatedContent.articleEs) {
+          try {
+            const spanishResponse = await apiClient.saveToGoogleDrive({
+              fileName: `${topic.substring(0, 50)}_articulo.txt`,
+              content: generatedContent.articleEs,
+              contentType: 'text/plain',
+              folderType: 'articles-es',
+              accessToken: driveToken
+            });
+            contentWithDriveUrls.articleEsDriveUrl = spanishResponse.viewLink;
+          } catch (driveError) {
+            console.error('Failed to save Spanish article to Drive:', driveError);
+          }
+        }
+      }
+
+      onContentCreated(contentWithDriveUrls);
       onBack();
+    } catch (err) {
+      setError(err.message || 'Failed to save content');
+      setSaving(false);
     }
   };
 
@@ -316,16 +373,30 @@ function ContentGenerator({ onBack, onContentCreated }) {
                 setTopic('');
                 setError(null);
               }}
+              disabled={saving}
             >
               Start Over
             </button>
             <button
               className="btn btn-primary btn-large"
               onClick={handleSave}
+              disabled={saving}
             >
-              Save & Continue to Videos
+              {saving ? (
+                <>
+                  <div className="spinner-small"></div>
+                  Saving{driveConnected ? ' to Drive' : ''}...
+                </>
+              ) : (
+                'Save & Continue to Videos'
+              )}
             </button>
           </div>
+          {driveConnected && (
+            <p className="drive-info">
+              Articles will be automatically saved to Google Drive
+            </p>
+          )}
         </div>
       )}
     </div>
