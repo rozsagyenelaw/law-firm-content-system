@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? '/.netlify/functions'
-  : 'http://localhost:8888/.netlify/functions';
+  : 'http://localhost:8889/.netlify/functions';
 
 class ApiClient {
   constructor() {
@@ -10,7 +10,8 @@ class ApiClient {
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 120000 // 120 seconds timeout for API calls
     });
   }
 
