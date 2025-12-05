@@ -66,13 +66,15 @@ class ApiClient {
 
   // HeyGen Video
   async createHeyGenVideo(data) {
-    try {
-      console.log('Creating HeyGen video with data:', data);
+    console.log('🎬 [START] createHeyGenVideo called');
+    console.log('📦 [DATA]', data);
 
+    try {
       // Try direct fetch instead of axios to bypass any axios issues
       const fullUrl = window.location.origin + '/.netlify/functions/create-heygen-video';
-      console.log('Full URL:', fullUrl);
+      console.log('🌐 [URL]', fullUrl);
 
+      console.log('📤 [SENDING] POST request...');
       const fetchResponse = await fetch(fullUrl, {
         method: 'POST',
         headers: {
@@ -82,19 +84,22 @@ class ApiClient {
         body: JSON.stringify(data)
       });
 
-      console.log('Fetch response status:', fetchResponse.status);
+      console.log('📥 [RECEIVED] Status:', fetchResponse.status, fetchResponse.statusText);
 
       if (!fetchResponse.ok) {
         const errorText = await fetchResponse.text();
-        console.error('Fetch error response:', errorText);
+        console.error('❌ [ERROR RESPONSE]', errorText);
         throw new Error(`HTTP ${fetchResponse.status}: ${errorText}`);
       }
 
       const responseData = await fetchResponse.json();
-      console.log('HeyGen response:', responseData);
+      console.log('✅ [SUCCESS]', responseData);
       return responseData;
     } catch (error) {
-      console.error('HeyGen API error:', error);
+      console.error('💥 [EXCEPTION]', error);
+      console.error('💥 [ERROR NAME]', error.name);
+      console.error('💥 [ERROR MESSAGE]', error.message);
+      console.error('💥 [ERROR STACK]', error.stack);
       throw new Error('Failed to create HeyGen video: ' + error.message);
     }
   }
