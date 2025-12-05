@@ -84,7 +84,9 @@ exports.handler = async (event) => {
           createSceneOnEndOfSentence: true,
           // Video style preferences - only real people, no cartoons
           videoStyle: 'photographic',
-          visualStyle: 'realistic'
+          visualStyle: 'realistic',
+          // Add uniqueness to prevent repeating footage
+          randomizeFootage: true
         }
       ],
       backgroundMusic: {
@@ -100,6 +102,20 @@ exports.handler = async (event) => {
             speed: 95  // Slightly slower (95 out of 100) for better clarity
           }
         ]
+      },
+      // Add text overlay with call-to-action
+      branding: {
+        intro: {
+          enabled: false
+        },
+        outro: {
+          enabled: true,
+          text: `Call ${process.env.FIRM_PHONE || '(818) 291-6217'}`,
+          duration: 3,
+          textColor: '#FFFFFF',
+          backgroundColor: '#1e3c72',
+          fontSize: 24
+        }
       }
     };
 

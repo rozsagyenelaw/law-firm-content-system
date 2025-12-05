@@ -104,13 +104,14 @@ CRITICAL - Script must be PEOPLE-FOCUSED to trigger good video footage:
 - Use simple, warm, conversational language - like talking to a neighbor over coffee
 - Start sentences clearly - no mumbling
 - NO legal jargon whatsoever
+- VARY YOUR DESCRIPTIONS: Use different scenarios each time (elderly couple, young parents, multi-generational family, single parent, etc.) to trigger diverse footage
 
-Format: Plain spoken words only, natural and human, focusing on people and families.`;
+Format: Plain spoken words only, natural and human, focusing on people and families. Be creative and vary the imagery!`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
+    temperature: 0.9,  // Increased for more variety and creativity
     max_tokens: 200  // Reduced for shorter scripts (30-40 seconds)
   });
 
