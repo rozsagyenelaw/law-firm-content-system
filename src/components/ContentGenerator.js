@@ -8,6 +8,7 @@ function ContentGenerator({ onBack, onContentCreated }) {
   const [topic, setTopic] = useState('');
   const [practiceArea, setPracticeArea] = useState('estate-planning');
   const [language, setLanguage] = useState('english');
+  const [articleLength, setArticleLength] = useState('full');
   const [includeDisclaimer, setIncludeDisclaimer] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
@@ -69,6 +70,7 @@ function ContentGenerator({ onBack, onContentCreated }) {
         topic,
         practiceArea,
         language,
+        articleLength,
         includeDisclaimer
       });
 
@@ -215,6 +217,24 @@ function ContentGenerator({ onBack, onContentCreated }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="articleLength">
+              Article Length <span className="required">*</span>
+            </label>
+            <select
+              id="articleLength"
+              value={articleLength}
+              onChange={(e) => setArticleLength(e.target.value)}
+              disabled={generating}
+            >
+              <option value="full">Full Article (800-1200 words) - For blog/website</option>
+              <option value="short">Short Article (200-300 words) - For video descriptions</option>
+            </select>
+            <small>
+              Choose full-length for your website blog, or short for video descriptions and social media
+            </small>
           </div>
 
           <div className="form-group">

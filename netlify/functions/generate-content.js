@@ -40,10 +40,26 @@ const addDisclaimer = (content, type, language, include) => {
   return content;
 };
 
-const generateArticle = async (topic, practiceArea, language) => {
+const generateArticle = async (topic, practiceArea, language, articleLength = 'full') => {
   const langInstruction = language === 'es'
     ? 'Write this article in professional, formal Spanish (using "usted" form):'
     : 'Write this article in English:';
+
+  // Configure length based on selection
+  const lengthConfig = {
+    full: {
+      wordCount: '800-1200 words',
+      maxTokens: 2000,
+      description: 'comprehensive, professional blog article'
+    },
+    short: {
+      wordCount: '200-300 words',
+      maxTokens: 500,
+      description: 'concise article perfect for video descriptions or social media posts'
+    }
+  };
+
+  const config = lengthConfig[articleLength] || lengthConfig.full;
 
   const prompt = `You are a legal content writer for ${ATTORNEY_INFO.firmName}, an experienced law firm with 25+ years of practice.
 
@@ -52,15 +68,17 @@ ${langInstruction}
 Topic: ${topic}
 Practice Area: ${practiceArea}
 
-Write a comprehensive, professional blog article (800-1200 words) that:
+Write a ${config.description} (${config.wordCount}) that:
 1. Has an engaging title
 2. Includes an introduction that hooks the reader
-3. Covers the topic thoroughly with clear sections
+3. Covers the topic ${articleLength === 'full' ? 'thoroughly with clear sections' : 'concisely with key points'}
 4. Uses professional but approachable language
 5. Provides valuable information for potential clients
 6. Includes a call-to-action at the end mentioning "${ATTORNEY_INFO.firmName}" and encouraging readers to contact the office for a consultation
 7. Mentions the service area: ${ATTORNEY_INFO.serviceArea}
 8. Is SEO-friendly and informative
+
+${articleLength === 'short' ? 'Keep it BRIEF and focused - this will be used as a video description or social media post.' : ''}
 
 The tone should be professional, trustworthy, and educational. Focus on helping potential clients understand their legal situation.`;
 
@@ -68,7 +86,7 @@ The tone should be professional, trustworthy, and educational. Focus on helping 
     model: 'gpt-4-turbo-preview',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
-    max_tokens: 2000
+    max_tokens: config.maxTokens
   });
 
   return completion.choices[0].message.content;
@@ -228,7 +246,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { topic, practiceArea, language, includeDisclaimer } = JSON.parse(event.body);
+    const { topic, practiceArea, language, includeDisclaimer, articleLength } = JSON.parse(event.body);
 
     if (!topic || !practiceArea || !language) {
       return {
@@ -246,7 +264,7 @@ exports.handler = async (event) => {
 
       // Generate all content in parallel for each language
       const [article, script, captions, hashtags] = await Promise.all([
-        generateArticle(topic, practiceArea, lang),
+        generateArticle(topic, practiceArea, lang, articleLength || 'full'),
         generateVideoScript(topic, practiceArea, lang),
         generateSocialCaptions(topic, practiceArea, lang),
         generateHashtags(topic, practiceArea, lang)
