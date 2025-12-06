@@ -83,30 +83,24 @@ exports.handler = async (event) => {
         {
           story: script,
           createSceneOnNewLine: true,
-          createSceneOnEndOfSentence: true,
-          // Video style preferences - only real people, no cartoons, professional content
-          videoStyle: 'photographic',
-          visualStyle: 'realistic',
-          contentFilter: 'family-friendly',  // Filter out adult/inappropriate content
-          keywords: 'family, professional, business, consultation, office, home, outdoors',
-          excludeKeywords: 'intimate, bedroom, sleeping, night, sensual, revealing'
+          createSceneOnEndOfSentence: true
         }
       ],
       backgroundMusic: {
         enabled: true,
         autoMusic: true,
-        volume: 0.15  // Lower volume so voice is clearer
+        volume: 0.15
       },
       voiceOver: {
         enabled: true,
         aiVoices: [
           {
             speaker: language === 'es' ? 'Maria' : 'Matthew',
-            speed: 95  // Slightly slower (95 out of 100) for better clarity
+            speed: 95
           }
         ]
       },
-      // Add persistent text overlay throughout video
+      // Text overlay with phone number
       textOverlay: {
         enabled: true,
         text: `📞 ${phoneNumber}`,
@@ -114,7 +108,7 @@ exports.handler = async (event) => {
         fontSize: 20,
         fontColor: '#FFFFFF',
         backgroundColor: 'rgba(30, 60, 114, 0.8)',
-        duration: 'full'  // Show throughout entire video
+        duration: 'full'
       }
     };
 
