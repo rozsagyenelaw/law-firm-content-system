@@ -15,16 +15,16 @@ const ATTORNEY_INFO = {
 
 const DISCLAIMERS = {
   article: {
-    en: 'Disclaimer: This article is for informational purposes only and does not constitute legal advice. For advice specific to your situation, please contact an attorney.',
-    es: 'Descargo de responsabilidad: Este artículo es solo para fines informativos y no constituye asesoramiento legal. Para obtener asesoramiento específico sobre su situación, comuníquese con un abogado.'
+    en: `Disclaimer: This article is for informational purposes only and does not constitute legal advice. For advice specific to your situation, please contact ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone}.`,
+    es: `Descargo de responsabilidad: Este artículo es solo para fines informativos y no constituye asesoramiento legal. Para obtener asesoramiento específico sobre su situación, comuníquese con ${ATTORNEY_INFO.firmName} al ${ATTORNEY_INFO.phone}.`
   },
   script: {
-    en: 'Remember, this is general information only. For advice about your specific situation, contact a qualified attorney.',
-    es: 'Recuerde, esto es solo información general. Para obtener asesoramiento sobre su situación específica, comuníquese con un abogado calificado.'
+    en: `Remember, this is general information only. For advice about your specific situation, contact ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone}.`,
+    es: `Recuerde, esto es solo información general. Para obtener asesoramiento sobre su situación específica, comuníquese con ${ATTORNEY_INFO.firmName} al ${ATTORNEY_INFO.phone}.`
   },
   social: {
-    en: 'This is not legal advice. Contact us for a consultation.',
-    es: 'Esto no es asesoramiento legal. Contáctenos para una consulta.'
+    en: `This is not legal advice. Contact ${ATTORNEY_INFO.firmName} for a consultation at ${ATTORNEY_INFO.phone}.`,
+    es: `Esto no es asesoramiento legal. Contáctese con ${ATTORNEY_INFO.firmName} para una consulta al ${ATTORNEY_INFO.phone}.`
   }
 };
 
