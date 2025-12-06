@@ -133,16 +133,21 @@ Create a SHORT 30-40 second video script (approximately 75-100 words) that:
 5. Uses short, clear sentences that are easy to understand when spoken aloud
 6. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
 
-CRITICAL RULES:
+CRITICAL RULES - VISUAL VARIETY IS ESSENTIAL:
 - 75-100 words MAXIMUM - be VERY concise
+- EACH SENTENCE MUST DESCRIBE A COMPLETELY DIFFERENT SCENE/LOCATION
 - Use SPECIFIC, VISUAL language: "sunny garden", "kitchen table", "backyard", "porch", "park", "beach", "dining room", etc.
-- Each sentence should paint a DIFFERENT visual scene
-- NEVER repeat the same setting twice in one script
+- Start each sentence with a NEW LOCATION or NEW VISUAL: "In the living room...", "At the park...", "Around the dinner table...", "Walking through the garden..."
+- NEVER EVER repeat the same setting twice in one script - this is critical for video variety
 - NEVER mention: documents, paperwork, forms, files, estate plans, wills, trusts, signing, legal documents, sleep, bed, bedroom, night
 - Focus on ACTIONS and SETTINGS: walking, talking, laughing, playing, holding hands, hugging, sitting together, celebrating
 - Professional, wholesome, daytime settings ONLY
+- Minimum 4-5 DIFFERENT scenes per script
 
-Format: Natural spoken words that paint vivid, specific, VARIED visual scenes!`;
+Example of good variety:
+"Picture your family gathered around the kitchen table, smiling and planning together. Now imagine walking through a sunny park with your grandchildren. Think of sitting on your porch, watching them play in the yard."
+
+Format: Natural spoken words that paint vivid, specific, VARIED visual scenes! Each sentence = new scene!`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',

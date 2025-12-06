@@ -74,18 +74,28 @@ exports.handler = async (event) => {
     // Pictory API v2 - Create video storyboard from text
     const phoneNumber = process.env.FIRM_PHONE || '(818) 291-6217';
 
+    // Split script into individual sentences to force scene changes
+    // This ensures each sentence gets its own scene with different footage
+    const sentences = script
+      .split(/[.!?]+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    console.log(`Split script into ${sentences.length} scenes:`, sentences);
+
+    // Create a separate scene for each sentence
+    const scenes = sentences.map(sentence => ({
+      story: sentence + '.', // Add period back
+      createSceneOnNewLine: false,
+      createSceneOnEndOfSentence: false
+    }));
+
     const requestBody = {
       videoName: videoName || `Law_Firm_Video_${Date.now()}`,
       videoWidth: format === '9:16' ? 1080 : 1920,
       videoHeight: format === '9:16' ? 1920 : 1080,
       language: language === 'es' ? 'es' : 'en',
-      scenes: [
-        {
-          story: script,
-          createSceneOnNewLine: true,
-          createSceneOnEndOfSentence: true
-        }
-      ],
+      scenes: scenes,
       backgroundMusic: {
         enabled: true,
         autoMusic: true,
