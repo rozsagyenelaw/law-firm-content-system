@@ -115,7 +115,7 @@ const generateVideoScript = async (topic, practiceArea, language) => {
 
   const randomScenario = visualScenarios[Math.floor(Math.random() * visualScenarios.length)];
 
-  const prompt = `You are creating a short video script for ${ATTORNEY_INFO.firmName}.
+  const prompt = `You are creating a SHORT educational video script for ${ATTORNEY_INFO.firmName}.
 
 ${langInstruction}
 
@@ -123,31 +123,37 @@ Topic: ${topic}
 Practice Area: ${practiceArea}
 
 VISUAL THEME FOR THIS VIDEO: ${randomScenario}
-Use this visual theme to inspire your language and descriptions. Make the viewer imagine THIS specific scene.
 
-Create a SHORT 30-40 second video script (approximately 75-100 words) that:
-1. Starts with ONE clear, simple hook question or statement about PEOPLE or FAMILY that relates to the visual theme
-2. Makes 2-3 key points focusing on PEOPLE, FAMILY, and RELATIONSHIPS
-3. Weave in descriptive language that matches the visual theme (e.g., if theme is "garden", mention "growing", "nurturing", "blossoming")
-4. Speaks directly to the viewer - use "you" and "your family"
-5. Uses short, clear sentences that are easy to understand when spoken aloud
-6. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
+Create a 30-40 second video script (75-100 words) that:
+1. Opens with a hook question about the LEGAL TOPIC (not just emotions)
+2. Explains 2-3 KEY FACTS or BENEFITS about this specific legal topic
+3. Connects each legal point to REAL-LIFE SCENARIOS using the visual theme
+4. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
 
-CRITICAL RULES - VISUAL VARIETY IS ESSENTIAL:
-- 75-100 words MAXIMUM - be VERY concise
-- EACH SENTENCE MUST DESCRIBE A COMPLETELY DIFFERENT SCENE/LOCATION
-- Use SPECIFIC, VISUAL language: "sunny garden", "kitchen table", "backyard", "porch", "park", "beach", "dining room", etc.
-- Start each sentence with a NEW LOCATION or NEW VISUAL: "In the living room...", "At the park...", "Around the dinner table...", "Walking through the garden..."
-- NEVER EVER repeat the same setting twice in one script - this is critical for video variety
-- NEVER mention: documents, paperwork, forms, files, estate plans, wills, trusts, signing, legal documents, sleep, bed, bedroom, night
-- Focus on ACTIONS and SETTINGS: walking, talking, laughing, playing, holding hands, hugging, sitting together, celebrating
-- Professional, wholesome, daytime settings ONLY
-- Minimum 4-5 DIFFERENT scenes per script
+CONTENT REQUIREMENTS - MUST BE EDUCATIONAL:
+- Actually EXPLAIN the legal topic - don't just talk about family feelings
+- Answer: What is it? Why does it matter? What does it do?
+- Use simple language but INCLUDE the actual legal information
+- Example topics to cover:
+  * Living Trust: avoids probate, keeps things private, saves time and money
+  * Will: who gets what, guardians for kids, your wishes in writing
+  * Power of Attorney: who makes decisions if you can't, medical and financial
+- Connect each fact to a visual scene showing the BENEFIT
 
-Example of good variety:
-"Picture your family gathered around the kitchen table, smiling and planning together. Now imagine walking through a sunny park with your grandchildren. Think of sitting on your porch, watching them play in the yard."
+VISUAL VARIETY RULES:
+- EACH SENTENCE = DIFFERENT SCENE/LOCATION
+- Start sentences with locations: "At the kitchen table...", "Walking in the park...", "In your home..."
+- 4-5 DIFFERENT scenes minimum
+- Use family-focused visuals BUT while explaining actual legal concepts
+- Professional, wholesome, daytime settings
 
-Format: Natural spoken words that paint vivid, specific, VARIED visual scenes! Each sentence = new scene!`;
+Example of GOOD script (balances education + visuals):
+"What happens to your home and savings when you pass away? At the kitchen table, imagine planning so your family avoids probate court. Walking through the park with your kids, you can have peace knowing guardians are named. In your living room, a living trust keeps everything private and protects what matters most. Call Law Offices of Rozsa Gyene for help."
+
+Example of BAD script (just emotion, no education):
+"Imagine your family at a picnic. Picture walks on the beach. Envision birthday celebrations. Call us."
+
+Format: Educational but warm, informative but visual. Each sentence teaches something AND shows a scene!`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
