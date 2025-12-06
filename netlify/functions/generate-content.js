@@ -115,51 +115,59 @@ const generateVideoScript = async (topic, practiceArea, language) => {
 
   const randomScenario = visualScenarios[Math.floor(Math.random() * visualScenarios.length)];
 
-  const prompt = `You are creating a SHORT educational video script for ${ATTORNEY_INFO.firmName}.
+  const prompt = `Create a SHORT, PUNCHY video script (under 60 seconds, 50-75 words max) for ${ATTORNEY_INFO.firmName}.
 
 ${langInstruction}
 
 Topic: ${topic}
 Practice Area: ${practiceArea}
 
-VISUAL THEME FOR THIS VIDEO: ${randomScenario}
+VISUAL THEME: ${randomScenario}
 
-Create a 30-40 second video script (75-100 words) that:
-1. Opens with a hook question about the LEGAL TOPIC (not just emotions)
-2. Explains 2-3 KEY FACTS or BENEFITS about this specific legal topic
-3. Connects each legal point to REAL-LIFE SCENARIOS using the visual theme
-4. Ends with: "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone} for help"
+REQUIRED FORMAT (5 parts):
 
-CONTENT REQUIREMENTS - MUST BE EDUCATIONAL:
-- Actually EXPLAIN the legal topic - don't just talk about family feelings
-- Answer: What is it? Why does it matter? What does it do?
-- Use simple language but INCLUDE the actual legal information
-- Example topics to cover:
-  * Living Trust: avoids probate, keeps things private, saves time and money
-  * Will: who gets what, guardians for kids, your wishes in writing
-  * Power of Attorney: who makes decisions if you can't, medical and financial
-- Connect each fact to a visual scene showing the BENEFIT
+1. HOOK (3 seconds - grab attention immediately)
+   - Start with a shocking fact, urgent question, or "Did you know...?"
+   - Make them STOP scrolling
+   - Example: "Did you know your family could wait years in probate court?"
 
-VISUAL VARIETY RULES:
-- EACH SENTENCE = DIFFERENT SCENE/LOCATION
-- Start sentences with locations: "At the kitchen table...", "Walking in the park...", "In your home..."
-- 4-5 DIFFERENT scenes minimum
-- Use family-focused visuals BUT while explaining actual legal concepts
-- Professional, wholesome, daytime settings
+2. PROBLEM (what can go wrong)
+   - ONE specific scary consequence if they don't act
+   - Keep it real and relatable
+   - Example: "Without a living trust, the court controls your assets."
 
-Example of GOOD script (balances education + visuals):
-"What happens to your home and savings when you pass away? At the kitchen table, imagine planning so your family avoids probate court. Walking through the park with your kids, you can have peace knowing guardians are named. In your living room, a living trust keeps everything private and protects what matters most. Call Law Offices of Rozsa Gyene for help."
+3. SOLUTION (how this legal tool helps)
+   - Explain what it does in ONE simple sentence
+   - Focus on the main benefit
+   - Example: "A living trust skips probate and keeps everything private."
 
-Example of BAD script (just emotion, no education):
-"Imagine your family at a picnic. Picture walks on the beach. Envision birthday celebrations. Call us."
+4. CALL TO ACTION
+   - "Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone}"
 
-Format: Educational but warm, informative but visual. Each sentence teaches something AND shows a scene!`;
+5. DISCLAIMER (will be added automatically - do NOT include)
+
+CRITICAL RULES:
+- 50-75 words TOTAL (excluding disclaimer)
+- Short, punchy sentences
+- Simple 5th grade reading level
+- NO legal jargon
+- Each sentence = different visual scene
+- Use action words: "imagine", "picture", "think about"
+- Different locations per sentence: kitchen table, park, living room, porch, etc.
+
+GOOD Example:
+"What happens when you die without a plan? Your family waits months in probate court, stressed and confused. A living trust fixes this - it keeps your assets out of court and gives your family immediate access. Picture them in your home, together, without legal battles. Call ${ATTORNEY_INFO.firmName} at ${ATTORNEY_INFO.phone}."
+
+BAD Example (too long, too complex):
+"Estate planning involves creating comprehensive legal documents that establish trusts and execute testamentary instruments..."
+
+Format: HOOK → PROBLEM → SOLUTION → CALL TO ACTION (punchy, simple, visual!)`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.9,  // Increased for more variety and creativity
-    max_tokens: 200  // Reduced for shorter scripts (30-40 seconds)
+    temperature: 0.8,  // High creativity but focused
+    max_tokens: 150  // Short scripts (50-75 words = under 60 seconds)
   });
 
   return completion.choices[0].message.content;
