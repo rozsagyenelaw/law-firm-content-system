@@ -84,13 +84,11 @@ exports.handler = async (event) => {
     console.log(`Split script into ${sentences.length} scenes:`, sentences);
 
     // Create a separate scene for each sentence
-    // Add zoom setting to zoom out by 45% (scale of 0.55)
     const scenes = sentences.map(sentence => ({
       story: sentence + '.', // Add period back
       createSceneOnNewLine: false,
       createSceneOnEndOfSentence: false,
-      visualZoom: false, // Disable automatic zoom to show more of the scene
-      visualScale: 0.55 // Scale down to 55% to zoom out by 45%
+      backgroundFitStyle: 'contain' // Try to fit entire image without cropping
     }));
 
     const requestBody = {
