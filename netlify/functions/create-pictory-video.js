@@ -88,9 +88,8 @@ exports.handler = async (event) => {
       story: sentence + '.', // Add period back
       createSceneOnNewLine: false,
       createSceneOnEndOfSentence: false,
-      backgroundFitStyle: 'cover', // Use cover mode for proper scaling
-      visualScale: 0.50, // Zoom out 50% to prevent cropping
-      visualPadding: 10 // Add padding around images
+      visualZoom: false, // Disable automatic zoom
+      visualScale: 0.60 // Scale to 60% (40% zoom out) to prevent cropping
     }));
 
     const requestBody = {
@@ -98,9 +97,6 @@ exports.handler = async (event) => {
       videoWidth: format === '9:16' ? 1080 : 1920,
       videoHeight: format === '9:16' ? 1920 : 1080,
       language: language === 'es' ? 'es' : 'en',
-      backgroundFitStyle: 'cover', // Use cover mode for proper scaling
-      visualScale: 0.50, // Zoom out 50% at video level to prevent cropping
-      visualPadding: 10, // Add padding around images at video level
       scenes: scenes,
       backgroundMusic: {
         enabled: true,
