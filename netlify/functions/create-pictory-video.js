@@ -84,10 +84,13 @@ exports.handler = async (event) => {
     console.log(`Split script into ${sentences.length} scenes:`, sentences);
 
     // Create a separate scene for each sentence
+    // Add zoom setting to zoom out by 20-25% (scale of 0.75-0.8)
     const scenes = sentences.map(sentence => ({
       story: sentence + '.', // Add period back
       createSceneOnNewLine: false,
-      createSceneOnEndOfSentence: false
+      createSceneOnEndOfSentence: false,
+      visualZoom: false, // Disable automatic zoom to show more of the scene
+      visualScale: 0.80 // Scale down to 80% to zoom out by 20%
     }));
 
     const requestBody = {
