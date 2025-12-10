@@ -96,6 +96,7 @@ exports.handler = async (event) => {
       videoWidth: format === '9:16' ? 1080 : 1920,
       videoHeight: format === '9:16' ? 1920 : 1080,
       language: language === 'es' ? 'es' : 'en',
+      backgroundFitStyle: 'contain', // Fit entire image without cropping
       scenes: scenes,
       backgroundMusic: {
         enabled: true,
